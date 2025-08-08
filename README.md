@@ -67,6 +67,14 @@ enterprise-platform/
   - Multi-environment deployment (dev/staging/prod)
   - Cost optimization and security best practices
 
+### 💻 Coding Standards
+- **Coding Guidelines** → [coding_guidelines.md](./coding_guidelines.md)
+  - Code organization and structure
+  - Component patterns and best practices
+  - Data management patterns
+  - Error handling and performance optimization
+  - Testing strategies and security patterns
+
 ## 🎯 Key Features
 
 ### Container-First Approach
@@ -163,6 +171,7 @@ docker-compose up -d
 - **Data loading patterns** cover traditional request/response, real-time WebSocket, and streaming data flows
 - **Implementation guidelines** cover domain-driven folder structure, React patterns, Jest hoisting issues, and Vite setup
 - **Infrastructure guidelines** provide container-first approach with AWS Fargate, Aurora, and CloudFormation
+- **Coding guidelines** provide comprehensive standards for code organization, component patterns, and best practices
 - **Cost optimization** strategies include Spot instances, Serverless v2, and auto-scaling
 - **Security** best practices include least privilege IAM, encryption, and VPC isolation
 
