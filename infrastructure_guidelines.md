@@ -6,26 +6,29 @@ This guide provides comprehensive infrastructure and backend implementation stan
 
 ```mermaid
 graph TD
-    A[Infrastructure & Backend] --> B[Containerization]
-    A --> C[AWS Infrastructure]
-    A --> D[Database Management]
-    A --> E[Deployment Strategy]
+    A[Enterprise Platform] --> B[Frontend Domain]
+    A --> C[Backend Domains]
+    A --> D[Infrastructure Domain]
+    A --> E[Shared Domain]
 
-    B --> B1[Docker Compose]
-    B --> B2[AWS Fargate]
-    B --> B3[Container Orchestration]
+    B --> B1[UI Components]
+    B --> B2[State Management]
+    B --> B3[User Experience]
 
-    C --> C1[CloudFormation]
-    C --> C2[VPC & Networking]
-    C --> C3[Security & IAM]
+    C --> C1[User Management]
+    C --> C2[Product Catalog]
+    C --> C3[Order Processing]
+    C --> C4[Analytics]
 
-    D --> D1[Aurora PostgreSQL]
-    D --> D2[Local Development]
-    D --> D3[Data Migration]
+    D --> D1[Container Orchestration]
+    D --> D2[Database Management]
+    D --> D3[Load Balancing]
+    D --> D4[Monitoring & Logging]
 
-    E --> E1[Multi-Environment]
-    E --> E2[CI/CD Pipeline]
-    E --> E3[Monitoring & Logging]
+    E --> E1[Authentication]
+    E --> E2[Logging]
+    E --> E3[Monitoring]
+    E --> E4[Security]
 
     style A fill:#e1f5fe
     style B fill:#f3e5f5
@@ -36,645 +39,488 @@ graph TD
 
 ---
 
-## 1. Repository Structure
+## 1. Domain Architecture Overview
 
-### 1.1 Recommended Organization
+### 1.1 Enterprise Platform Domains
+
+```mermaid
+graph TB
+    subgraph "Frontend Domain"
+        A1[React Components]
+        A2[State Management]
+        A3[User Interface]
+        A4[Client-Side Logic]
+    end
+
+    subgraph "Backend Domains"
+        B1[User Management Domain]
+        B2[Product Catalog Domain]
+        B3[Order Processing Domain]
+        B4[Analytics Domain]
+        B5[Notification Domain]
+    end
+
+    subgraph "Infrastructure Domain"
+        C1[Container Orchestration]
+        C2[Database Management]
+        C3[Load Balancing]
+        C4[Monitoring & Logging]
+    end
+
+    subgraph "Shared Domain"
+        D1[Authentication Service]
+        D2[Event Bus]
+        D3[API Gateway]
+        D4[Security Services]
+    end
+
+    A1 --> D1
+    A2 --> D2
+    B1 --> D1
+    B2 --> D3
+    B3 --> D2
+    C1 --> C2
+    C2 --> C4
+
+    style A1 fill:#f3e5f5
+    style B1 fill:#e8f5e8
+    style C1 fill:#fff3e0
+    style D1 fill:#fce4ec
+```
+
+### 1.2 Domain Responsibilities
+
+#### **Frontend Domain**
+- **Purpose**: User interface and client-side application logic
+- **Responsibilities**:
+  - React component architecture
+  - State management (Redux/Zustand)
+  - User experience and interactions
+  - Client-side routing
+  - Progressive Web App features
+
+#### **Backend Domains**
+- **User Management Domain**:
+  - User authentication and authorization
+  - User profiles and preferences
+  - Role-based access control
+  - User session management
+
+- **Product Catalog Domain**:
+  - Product information management
+  - Inventory tracking
+  - Product search and filtering
+  - Category management
+
+- **Order Processing Domain**:
+  - Order creation and management
+  - Payment processing
+  - Order status tracking
+  - Fulfillment coordination
+
+- **Analytics Domain**:
+  - Data collection and processing
+  - Reporting and dashboards
+  - Business intelligence
+  - Performance metrics
+
+- **Notification Domain**:
+  - Email notifications
+  - Push notifications
+  - In-app messaging
+  - Notification preferences
+
+#### **Infrastructure Domain**
+- **Purpose**: Platform infrastructure and deployment
+- **Responsibilities**:
+  - Container orchestration (AWS Fargate)
+  - Database management (Aurora PostgreSQL)
+  - Load balancing and scaling
+  - Monitoring and logging
+  - Security and compliance
+
+#### **Shared Domain**
+- **Purpose**: Cross-cutting concerns and shared services
+- **Responsibilities**:
+  - Authentication and authorization
+  - Event-driven communication
+  - API gateway and routing
+  - Security services
+  - Common utilities
+
+---
+
+## 2. Repository Structure with Domain Organization
+
+### 2.1 Recommended Organization
 
 ```
 enterprise-platform/
-├── frontend/                          # UI Implementation
+├── frontend/                          # Frontend Domain
 │   ├── src/
+│   │   ├── domains/                   # Business domains
+│   │   │   ├── user/                  # User management domain
+│   │   │   │   ├── components/        # Domain-specific components
+│   │   │   │   ├── hooks/             # Domain-specific hooks
+│   │   │   │   ├── services/          # Domain-specific services
+│   │   │   │   ├── types/             # Domain-specific types
+│   │   │   │   └── index.ts           # Domain exports
+│   │   │   ├── product/               # Product catalog domain
+│   │   │   │   ├── components/
+│   │   │   │   ├── hooks/
+│   │   │   │   ├── services/
+│   │   │   │   ├── types/
+│   │   │   │   └── index.ts
+│   │   │   ├── order/                 # Order processing domain
+│   │   │   │   ├── components/
+│   │   │   │   ├── hooks/
+│   │   │   │   ├── services/
+│   │   │   │   ├── types/
+│   │   │   │   └── index.ts
+│   │   │   └── analytics/             # Analytics domain
+│   │   │       ├── components/
+│   │   │       ├── hooks/
+│   │   │       ├── services/
+│   │   │       ├── types/
+│   │   │       └── index.ts
+│   │   ├── shared/                    # Shared infrastructure
+│   │   │   ├── components/            # Reusable components
+│   │   │   ├── hooks/                 # Shared hooks
+│   │   │   ├── services/              # Shared services
+│   │   │   ├── utils/                 # Shared utilities
+│   │   │   ├── types/                 # Shared types
+│   │   │   └── styles/                # Shared styles
+│   │   ├── app/                       # Application layer
+│   │   │   ├── components/            # App-level components
+│   │   │   ├── providers/             # Context providers
+│   │   │   ├── routes/                # Routing configuration
+│   │   │   └── store/                 # Global state management
+│   │   └── config/                    # Configuration files
 │   ├── public/
 │   ├── package.json
 │   └── README.md
 │
-├── backend/                           # Backend Services
-│   ├── services/
-│   │   ├── user-service/
+├── backend/                           # Backend Domains
+│   ├── services/                      # Microservices
+│   │   ├── user-service/              # User Management Domain
 │   │   │   ├── src/
+│   │   │   │   ├── controllers/       # Request handlers
+│   │   │   │   ├── services/          # Business logic
+│   │   │   │   ├── models/            # Data models
+│   │   │   │   ├── middleware/        # Request middleware
+│   │   │   │   ├── utils/             # Domain utilities
+│   │   │   │   └── types/             # Domain types
+│   │   │   ├── tests/
 │   │   │   ├── Dockerfile
-│   │   │   ├── package.json
-│   │   │   └── tests/
-│   │   ├── product-service/
-│   │   └── order-service/
-│   ├── shared/
-│   │   ├── middleware/
-│   │   ├── utils/
-│   │   └── types/
+│   │   │   └── package.json
+│   │   ├── product-service/           # Product Catalog Domain
+│   │   │   ├── src/
+│   │   │   │   ├── controllers/
+│   │   │   │   ├── services/
+│   │   │   │   ├── models/
+│   │   │   │   ├── middleware/
+│   │   │   │   ├── utils/
+│   │   │   │   └── types/
+│   │   │   ├── tests/
+│   │   │   ├── Dockerfile
+│   │   │   └── package.json
+│   │   ├── order-service/             # Order Processing Domain
+│   │   │   ├── src/
+│   │   │   │   ├── controllers/
+│   │   │   │   ├── services/
+│   │   │   │   ├── models/
+│   │   │   │   ├── middleware/
+│   │   │   │   ├── utils/
+│   │   │   │   └── types/
+│   │   │   ├── tests/
+│   │   │   ├── Dockerfile
+│   │   │   └── package.json
+│   │   ├── analytics-service/         # Analytics Domain
+│   │   │   ├── src/
+│   │   │   │   ├── controllers/
+│   │   │   │   ├── services/
+│   │   │   │   ├── models/
+│   │   │   │   ├── middleware/
+│   │   │   │   ├── utils/
+│   │   │   │   └── types/
+│   │   │   ├── tests/
+│   │   │   ├── Dockerfile
+│   │   │   └── package.json
+│   │   └── notification-service/      # Notification Domain
+│   │       ├── src/
+│   │       │   ├── controllers/
+│   │       │   ├── services/
+│   │       │   ├── models/
+│   │       │   ├── middleware/
+│   │       │   ├── utils/
+│   │       │   └── types/
+│   │       ├── tests/
+│   │       ├── Dockerfile
+│   │       └── package.json
+│   ├── shared/                        # Shared Domain
+│   │   ├── middleware/                # Cross-cutting middleware
+│   │   │   ├── auth.ts                # Authentication middleware
+│   │   │   ├── logging.ts             # Logging middleware
+│   │   │   ├── validation.ts          # Request validation
+│   │   │   └── error-handling.ts      # Error handling
+│   │   ├── utils/                     # Shared utilities
+│   │   │   ├── database.ts            # Database utilities
+│   │   │   ├── encryption.ts          # Encryption utilities
+│   │   │   ├── validation.ts          # Validation utilities
+│   │   │   └── constants.ts           # Shared constants
+│   │   ├── types/                     # Shared types
+│   │   │   ├── common.types.ts        # Common types
+│   │   │   ├── api.types.ts           # API types
+│   │   │   └── events.types.ts        # Event types
+│   │   └── services/                  # Shared services
+│   │       ├── event-bus.ts           # Event bus service
+│   │       ├── cache.ts               # Cache service
+│   │       └── logger.ts              # Logging service
 │   └── docker-compose.yml
 │
-├── infrastructure/                    # Infrastructure as Code
-│   ├── cloudformation/
-│   │   ├── templates/
-│   │   │   ├── vpc.yml
-│   │   │   ├── aurora.yml
-│   │   │   ├── fargate.yml
-│   │   │   ├── alb.yml
-│   │   │   └── security.yml
-│   │   ├── scripts/
-│   │   └── environments/
-│   │       ├── dev/
-│   │       ├── staging/
-│   │       └── prod/
+├── infrastructure/                    # Infrastructure Domain
+│   ├── cloudformation/                # Infrastructure as Code
+│   │   ├── templates/                 # CloudFormation templates
+│   │   │   ├── vpc.yml                # VPC configuration
+│   │   │   ├── aurora.yml             # Aurora database
+│   │   │   ├── fargate.yml            # Fargate services
+│   │   │   ├── alb.yml                # Load balancer
+│   │   │   └── security.yml           # Security groups
+│   │   ├── scripts/                   # Deployment scripts
+│   │   └── environments/              # Environment configs
+│   │       ├── dev/                   # Development environment
+│   │       ├── staging/               # Staging environment
+│   │       └── prod/                  # Production environment
 │   ├── terraform/                     # Alternative IaC
-│   └── scripts/
+│   └── scripts/                       # Infrastructure scripts
 │
 ├── deployment/                        # Deployment Configuration
-│   ├── docker/
-│   │   ├── Dockerfile.base
-│   │   └── docker-compose.yml
+│   ├── docker/                        # Container configuration
+│   │   ├── Dockerfile.base            # Base Docker image
+│   │   └── docker-compose.yml         # Local development
 │   ├── kubernetes/                    # K8s manifests (optional)
-│   ├── scripts/
-│   └── configs/
+│   ├── scripts/                       # Deployment scripts
+│   └── configs/                       # Configuration files
 │
 ├── docs/                             # Documentation
-│   ├── architecture/
-│   ├── api/
-│   ├── deployment/
-│   └── troubleshooting/
+│   ├── architecture/                 # Architecture documentation
+│   ├── api/                          # API documentation
+│   ├── deployment/                   # Deployment guides
+│   └── troubleshooting/              # Troubleshooting guides
 │
 ├── scripts/                          # Utility Scripts
-│   ├── setup.sh
-│   ├── deploy.sh
-│   └── backup.sh
+│   ├── setup.sh                      # Environment setup
+│   ├── deploy.sh                     # Deployment script
+│   └── backup.sh                     # Backup script
 │
 └── README.md
 ```
 
----
+### 2.2 Domain Communication Patterns
 
-## 2. Containerization Strategy
+```mermaid
+graph TB
+    subgraph "Frontend Domain"
+        A1[User Interface]
+        A2[State Management]
+        A3[Event System]
+    end
 
-### 2.1 Docker Compose for Local Development
+    subgraph "Backend Domains"
+        B1[User Service]
+        B2[Product Service]
+        B3[Order Service]
+        B4[Analytics Service]
+        B5[Notification Service]
+    end
 
-```yaml
-# docker-compose.yml
-version: '3.8'
+    subgraph "Shared Domain"
+        C1[Event Bus]
+        C2[API Gateway]
+        C3[Authentication]
+        C4[Logging]
+    end
 
-services:
-  # Database Services
-  postgres:
-    image: postgres:15-alpine
-    environment:
-      POSTGRES_DB: enterprise_dev
-      POSTGRES_USER: dev_user
-      POSTGRES_PASSWORD: dev_password
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-      - ./init-scripts:/docker-entrypoint-initdb.d
-    networks:
-      - enterprise-network
+    subgraph "Infrastructure Domain"
+        D1[Load Balancer]
+        D2[Database]
+        D3[Cache]
+        D4[Monitoring]
+    end
 
-  redis:
-    image: redis:7-alpine
-    ports:
-      - "6379:6379"
-    networks:
-      - enterprise-network
+    A1 --> C2
+    A2 --> C1
+    A3 --> C1
+    
+    B1 --> C1
+    B2 --> C1
+    B3 --> C1
+    B4 --> C1
+    B5 --> C1
+    
+    C2 --> B1
+    C2 --> B2
+    C2 --> B3
+    C2 --> B4
+    C2 --> B5
+    
+    B1 --> D2
+    B2 --> D2
+    B3 --> D2
+    B4 --> D2
+    B5 --> D2
+    
+    D1 --> C2
+    D3 --> C4
+    D4 --> C4
 
-  # Backend Services
-  user-service:
-    build:
-      context: ./backend/services/user-service
-      dockerfile: Dockerfile
-    environment:
-      NODE_ENV: development
-      DATABASE_URL: postgresql://dev_user:dev_password@postgres:5432/enterprise_dev
-      REDIS_URL: redis://redis:6379
-    ports:
-      - "3001:3000"
-    depends_on:
-      - postgres
-      - redis
-    networks:
-      - enterprise-network
-    volumes:
-      - ./backend/services/user-service:/app
-      - /app/node_modules
-
-  product-service:
-    build:
-      context: ./backend/services/product-service
-      dockerfile: Dockerfile
-    environment:
-      NODE_ENV: development
-      DATABASE_URL: postgresql://dev_user:dev_password@postgres:5432/enterprise_dev
-      REDIS_URL: redis://redis:6379
-    ports:
-      - "3002:3000"
-    depends_on:
-      - postgres
-      - redis
-    networks:
-      - enterprise-network
-    volumes:
-      - ./backend/services/product-service:/app
-      - /app/node_modules
-
-  # Frontend
-  frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    environment:
-      REACT_APP_API_URL: http://localhost:3001
-      REACT_APP_WS_URL: ws://localhost:3001
-    ports:
-      - "3000:3000"
-    depends_on:
-      - user-service
-      - product-service
-    networks:
-      - enterprise-network
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
-
-  # Monitoring
-  prometheus:
-    image: prom/prometheus:latest
-    ports:
-      - "9090:9090"
-    volumes:
-      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
-    networks:
-      - enterprise-network
-
-  grafana:
-    image: grafana/grafana:latest
-    ports:
-      - "3001:3000"
-    environment:
-      GF_SECURITY_ADMIN_PASSWORD: admin
-    volumes:
-      - grafana_data:/var/lib/grafana
-    networks:
-      - enterprise-network
-
-volumes:
-  postgres_data:
-  grafana_data:
-
-networks:
-  enterprise-network:
-    driver: bridge
-```
-
-### 2.2 Multi-Stage Dockerfile
-
-```dockerfile
-# backend/services/user-service/Dockerfile
-FROM node:18-alpine AS base
-
-# Install dependencies only when needed
-FROM base AS deps
-RUN apk add --no-cache libc6-compat
-WORKDIR /app
-
-# Copy package files
-COPY package*.json ./
-RUN npm ci --only=production && npm cache clean --force
-
-# Rebuild the source code only when needed
-FROM base AS builder
-WORKDIR /app
-COPY --from=deps /app/node_modules ./node_modules
-COPY . .
-
-# Build the application
-RUN npm run build
-
-# Production image, copy all the files and run the app
-FROM base AS runner
-WORKDIR /app
-
-ENV NODE_ENV=production
-
-# Create a non-root user
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 nextjs
-
-# Copy built application
-COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/package*.json ./
-
-# Change ownership
-RUN chown -R nextjs:nodejs /app
-USER nextjs
-
-EXPOSE 3000
-
-ENV PORT=3000
-ENV HOSTNAME="0.0.0.0"
-
-CMD ["node", "dist/index.js"]
+    style A1 fill:#f3e5f5
+    style B1 fill:#e8f5e8
+    style C1 fill:#fce4ec
+    style D1 fill:#fff3e0
 ```
 
 ---
 
-## 3. AWS Infrastructure with CloudFormation
+## 3. Domain-Specific Implementation
 
-### 3.1 VPC Configuration
+### 3.1 Frontend Domain Implementation
 
-```yaml
-# infrastructure/cloudformation/templates/vpc.yml
-AWSTemplateFormatVersion: '2010-09-09'
-Description: 'Enterprise Platform VPC with Public and Private Subnets'
+```typescript
+// frontend/src/domains/user/index.ts
+export { UserProfile } from './components/UserProfile';
+export { UserList } from './components/UserList';
+export { useUser, useUserPermissions } from './hooks';
+export { userService } from './services/userService';
+export type { User, UserProfile, UserPermissions } from './types';
 
-Parameters:
-  Environment:
-    Type: String
-    Default: dev
-    AllowedValues: [dev, staging, prod]
-    Description: Environment name
+// frontend/src/domains/user/components/UserProfile/UserProfile.tsx
+import React from 'react';
+import { useUser } from '../../hooks/useUser';
+import { UserProfileProps } from './types';
 
-  VpcCidr:
-    Type: String
-    Default: 10.0.0.0/16
-    Description: CIDR block for VPC
+export const UserProfile: React.FC<UserProfileProps> = ({ userId }) => {
+  const { user, isLoading, error } = useUser(userId);
 
-Resources:
-  VPC:
-    Type: AWS::EC2::VPC
-    Properties:
-      CidrBlock: !Ref VpcCidr
-      EnableDnsHostnames: true
-      EnableDnsSupport: true
-      Tags:
-        - Key: Name
-          Value: !Sub '${Environment}-enterprise-vpc'
-        - Key: Environment
-          Value: !Ref Environment
+  if (isLoading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error.message}</div>;
 
-  # Public Subnets
-  PublicSubnet1:
-    Type: AWS::EC2::Subnet
-    Properties:
-      VpcId: !Ref VPC
-      CidrBlock: 10.0.1.0/24
-      AvailabilityZone: !Select [0, !GetAZs '']
-      MapPublicIpOnLaunch: true
-      Tags:
-        - Key: Name
-          Value: !Sub '${Environment}-public-subnet-1'
-
-  PublicSubnet2:
-    Type: AWS::EC2::Subnet
-    Properties:
-      VpcId: !Ref VPC
-      CidrBlock: 10.0.2.0/24
-      AvailabilityZone: !Select [1, !GetAZs '']
-      MapPublicIpOnLaunch: true
-      Tags:
-        - Key: Name
-          Value: !Sub '${Environment}-public-subnet-2'
-
-  # Private Subnets
-  PrivateSubnet1:
-    Type: AWS::EC2::Subnet
-    Properties:
-      VpcId: !Ref VPC
-      CidrBlock: 10.0.3.0/24
-      AvailabilityZone: !Select [0, !GetAZs '']
-      Tags:
-        - Key: Name
-          Value: !Sub '${Environment}-private-subnet-1'
-
-  PrivateSubnet2:
-    Type: AWS::EC2::Subnet
-    Properties:
-      VpcId: !Ref VPC
-      CidrBlock: 10.0.4.0/24
-      AvailabilityZone: !Select [1, !GetAZs '']
-      Tags:
-        - Key: Name
-          Value: !Sub '${Environment}-private-subnet-2'
-
-  # Internet Gateway
-  InternetGateway:
-    Type: AWS::EC2::InternetGateway
-    Properties:
-      Tags:
-        - Key: Name
-          Value: !Sub '${Environment}-igw'
-
-  InternetGatewayAttachment:
-    Type: AWS::EC2::VPCGatewayAttachment
-    Properties:
-      VpcId: !Ref VPC
-      InternetGatewayId: !Ref InternetGateway
-
-  # NAT Gateway
-  NatGatewayEIP:
-    Type: AWS::EC2::EIP
-    DependsOn: InternetGatewayAttachment
-    Properties:
-      Domain: vpc
-
-  NatGateway:
-    Type: AWS::EC2::NatGateway
-    Properties:
-      AllocationId: !GetAtt NatGatewayEIP.AllocationId
-      SubnetId: !Ref PublicSubnet1
-      Tags:
-        - Key: Name
-          Value: !Sub '${Environment}-nat-gateway'
-
-  # Route Tables
-  PublicRouteTable:
-    Type: AWS::EC2::RouteTable
-    Properties:
-      VpcId: !Ref VPC
-      Tags:
-        - Key: Name
-          Value: !Sub '${Environment}-public-routes'
-
-  PublicRoute:
-    Type: AWS::EC2::Route
-    DependsOn: InternetGatewayAttachment
-    Properties:
-      RouteTableId: !Ref PublicRouteTable
-      DestinationCidrBlock: 0.0.0.0/0
-      GatewayId: !Ref InternetGateway
-
-  PrivateRouteTable:
-    Type: AWS::EC2::RouteTable
-    Properties:
-      VpcId: !Ref VPC
-      Tags:
-        - Key: Name
-          Value: !Sub '${Environment}-private-routes'
-
-  PrivateRoute:
-    Type: AWS::EC2::Route
-    Properties:
-      RouteTableId: !Ref PrivateRouteTable
-      DestinationCidrBlock: 0.0.0.0/0
-      NatGatewayId: !Ref NatGateway
-
-  # Route Table Associations
-  PublicSubnet1RouteTableAssociation:
-    Type: AWS::EC2::SubnetRouteTableAssociation
-    Properties:
-      SubnetId: !Ref PublicSubnet1
-      RouteTableId: !Ref PublicRouteTable
-
-  PublicSubnet2RouteTableAssociation:
-    Type: AWS::EC2::SubnetRouteTableAssociation
-    Properties:
-      SubnetId: !Ref PublicSubnet2
-      RouteTableId: !Ref PublicRouteTable
-
-  PrivateSubnet1RouteTableAssociation:
-    Type: AWS::EC2::SubnetRouteTableAssociation
-    Properties:
-      SubnetId: !Ref PrivateSubnet1
-      RouteTableId: !Ref PrivateRouteTable
-
-  PrivateSubnet2RouteTableAssociation:
-    Type: AWS::EC2::SubnetRouteTableAssociation
-    Properties:
-      SubnetId: !Ref PrivateSubnet2
-      RouteTableId: !Ref PrivateRouteTable
-
-Outputs:
-  VpcId:
-    Description: VPC ID
-    Value: !Ref VPC
-    Export:
-      Name: !Sub '${Environment}-vpc-id'
-
-  PublicSubnets:
-    Description: Public Subnets
-    Value: !Join [',', [!Ref PublicSubnet1, !Ref PublicSubnet2]]
-    Export:
-      Name: !Sub '${Environment}-public-subnets'
-
-  PrivateSubnets:
-    Description: Private Subnets
-    Value: !Join [',', [!Ref PrivateSubnet1, !Ref PrivateSubnet2]]
-    Export:
-      Name: !Sub '${Environment}-private-subnets'
+  return (
+    <div className="user-profile">
+      <h2>{user.name}</h2>
+      <p>{user.email}</p>
+    </div>
+  );
+};
 ```
 
-### 3.2 Aurora Database Configuration
+### 3.2 Backend Domain Implementation
 
-```yaml
-# infrastructure/cloudformation/templates/aurora.yml
-AWSTemplateFormatVersion: '2010-09-09'
-Description: 'Aurora PostgreSQL Database Cluster'
+```typescript
+// backend/services/user-service/src/controllers/userController.ts
+import { Request, Response } from 'express';
+import { userService } from '../services/userService';
+import { validateUser } from '../utils/validation';
 
-Parameters:
-  Environment:
-    Type: String
-    Default: dev
-    AllowedValues: [dev, staging, prod]
-    Description: Environment name
+export class UserController {
+  async getUser(req: Request, res: Response) {
+    try {
+      const { userId } = req.params;
+      const user = await userService.getUser(userId);
+      res.json(user);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  }
 
-  DBName:
-    Type: String
-    Default: enterprise
-    Description: Database name
+  async createUser(req: Request, res: Response) {
+    try {
+      const userData = validateUser(req.body);
+      const user = await userService.createUser(userData);
+      res.status(201).json(user);
+    } catch (error) {
+      res.status(400).json({ error: error.message });
+    }
+  }
+}
 
-  DBUsername:
-    Type: String
-    Default: admin
-    Description: Database master username
+// backend/services/user-service/src/services/userService.ts
+import { User, CreateUserData } from '../types';
+import { userRepository } from '../repositories/userRepository';
+import { eventBus } from '../../../shared/services/event-bus';
 
-  DBPassword:
-    Type: String
-    NoEcho: true
-    Description: Database master password
+export class UserService {
+  async getUser(userId: string): Promise<User> {
+    return await userRepository.findById(userId);
+  }
 
-  DBInstanceClass:
-    Type: String
-    Default: db.r6g.large
-    Description: Database instance class
-
-  DBClusterSize:
-    Type: Number
-    Default: 2
-    MinValue: 1
-    MaxValue: 15
-    Description: Number of database instances in cluster
-
-Resources:
-  # Security Group for Aurora
-  AuroraSecurityGroup:
-    Type: AWS::EC2::SecurityGroup
-    Properties:
-      GroupDescription: Security group for Aurora database
-      VpcId:
-        Fn::ImportValue: !Sub '${Environment}-vpc-id'
-      SecurityGroupIngress:
-        - IpProtocol: tcp
-          FromPort: 5432
-          ToPort: 5432
-          SourceSecurityGroupId: !Ref FargateSecurityGroup
-
-  # Subnet Group
-  AuroraSubnetGroup:
-    Type: AWS::RDS::DBSubnetGroup
-    Properties:
-      DBSubnetGroupDescription: Aurora subnet group
-      SubnetIds:
-        Fn::Split:
-          - ','
-          - Fn::ImportValue: !Sub '${Environment}-private-subnets'
-      Tags:
-        - Key: Name
-          Value: !Sub '${Environment}-aurora-subnet-group'
-
-  # Parameter Group
-  AuroraParameterGroup:
-    Type: AWS::RDS::DBParameterGroup
-    Properties:
-      Description: Aurora PostgreSQL parameter group
-      Family: aurora-postgresql15
-      Parameters:
-        shared_preload_libraries: 'pg_stat_statements'
-        log_statement: 'all'
-        log_min_duration_statement: '1000'
-
-  # Cluster Parameter Group
-  AuroraClusterParameterGroup:
-    Type: AWS::RDS::DBClusterParameterGroup
-    Properties:
-      Description: Aurora PostgreSQL cluster parameter group
-      Family: aurora-postgresql15
-      Parameters:
-        aurora_enable_replica_logging: '1'
-
-  # Aurora Cluster
-  AuroraCluster:
-    Type: AWS::RDS::DBCluster
-    Properties:
-      DBClusterIdentifier: !Sub '${Environment}-aurora-cluster'
-      Engine: aurora-postgresql
-      EngineVersion: '15.4'
-      EngineMode: provisioned
-      DatabaseName: !Ref DBName
-      MasterUsername: !Ref DBUsername
-      MasterUserPassword: !Ref DBPassword
-      DBSubnetGroupName: !Ref AuroraSubnetGroup
-      VpcSecurityGroupIds:
-        - !Ref AuroraSecurityGroup
-      DBClusterParameterGroupName: !Ref AuroraClusterParameterGroup
-      BackupRetentionPeriod: 7
-      PreferredBackupWindow: '03:00-04:00'
-      PreferredMaintenanceWindow: 'sun:04:00-sun:05:00'
-      DeletionProtection: !If [IsProd, true, false]
-      StorageEncrypted: true
-      KmsKeyId: !Ref AuroraKMSKey
-      Tags:
-        - Key: Name
-          Value: !Sub '${Environment}-aurora-cluster'
-        - Key: Environment
-          Value: !Ref Environment
-
-  # Aurora Instances
-  AuroraPrimaryInstance:
-    Type: AWS::RDS::DBInstance
-    Properties:
-      DBInstanceIdentifier: !Sub '${Environment}-aurora-primary'
-      DBClusterIdentifier: !Ref AuroraCluster
-      Engine: aurora-postgresql
-      DBInstanceClass: !Ref DBInstanceClass
-      PubliclyAccessible: false
-      AutoMinorVersionUpgrade: true
-      MonitoringInterval: 60
-      MonitoringRoleArn: !GetAtt AuroraMonitoringRole.Arn
-      PerformanceInsightsEnabled: true
-      PerformanceInsightsRetentionPeriod: 7
-      Tags:
-        - Key: Name
-          Value: !Sub '${Environment}-aurora-primary'
-
-  AuroraReplicaInstance:
-    Type: AWS::RDS::DBInstance
-    Condition: HasReplica
-    Properties:
-      DBInstanceIdentifier: !Sub '${Environment}-aurora-replica'
-      DBClusterIdentifier: !Ref AuroraCluster
-      Engine: aurora-postgresql
-      DBInstanceClass: !Ref DBInstanceClass
-      PubliclyAccessible: false
-      AutoMinorVersionUpgrade: true
-      MonitoringInterval: 60
-      MonitoringRoleArn: !GetAtt AuroraMonitoringRole.Arn
-      PerformanceInsightsEnabled: true
-      PerformanceInsightsRetentionPeriod: 7
-      Tags:
-        - Key: Name
-          Value: !Sub '${Environment}-aurora-replica'
-
-  # KMS Key for Encryption
-  AuroraKMSKey:
-    Type: AWS::KMS::Key
-    Properties:
-      Description: KMS key for Aurora encryption
-      KeyPolicy:
-        Version: '2012-10-17'
-        Statement:
-          - Sid: Enable IAM User Permissions
-            Effect: Allow
-            Principal:
-              AWS: !Sub 'arn:aws:iam::${AWS::AccountId}:root'
-            Action: 'kms:*'
-            Resource: '*'
-          - Sid: Allow CloudWatch Logs
-            Effect: Allow
-            Principal:
-              Service: logs.region.amazonaws.com
-            Action:
-              - kms:Encrypt*
-              - kms:Decrypt*
-              - kms:ReEncrypt*
-              - kms:GenerateDataKey*
-              - kms:Describe*
-            Resource: '*'
-
-  # IAM Role for Monitoring
-  AuroraMonitoringRole:
-    Type: AWS::IAM::Role
-    Properties:
-      AssumeRolePolicyDocument:
-        Version: '2012-10-17'
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service: monitoring.rds.amazonaws.com
-            Action: sts:AssumeRole
-      ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/service-role/AmazonRDSEnhancedMonitoringRole
-
-Conditions:
-  IsProd: !Equals [!Ref Environment, 'prod']
-  HasReplica: !GreaterThan [!Ref DBClusterSize, 1]
-
-Outputs:
-  AuroraClusterEndpoint:
-    Description: Aurora cluster endpoint
-    Value: !GetAtt AuroraCluster.Endpoint.Address
-    Export:
-      Name: !Sub '${Environment}-aurora-endpoint'
-
-  AuroraClusterPort:
-    Description: Aurora cluster port
-    Value: !GetAtt AuroraCluster.Endpoint.Port
-    Export:
-      Name: !Sub '${Environment}-aurora-port'
+  async createUser(userData: CreateUserData): Promise<User> {
+    const user = await userRepository.create(userData);
+    eventBus.emit('USER_CREATED', { user });
+    return user;
+  }
+}
 ```
 
-### 3.3 Fargate Service Configuration
+### 3.3 Shared Domain Implementation
+
+```typescript
+// backend/shared/services/event-bus.ts
+import { EventEmitter } from 'events';
+
+class EventBus extends EventEmitter {
+  private static instance: EventBus;
+
+  private constructor() {
+    super();
+  }
+
+  static getInstance(): EventBus {
+    if (!EventBus.instance) {
+      EventBus.instance = new EventBus();
+    }
+    return EventBus.instance;
+  }
+
+  emit(event: string, data: any): boolean {
+    console.log(`Event emitted: ${event}`, data);
+    return super.emit(event, data);
+  }
+}
+
+export const eventBus = EventBus.getInstance();
+
+// backend/shared/middleware/auth.ts
+import { Request, Response, NextFunction } from 'express';
+import jwt from 'jsonwebtoken';
+
+export const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
+  const token = req.headers.authorization?.split(' ')[1];
+  
+  if (!token) {
+    return res.status(401).json({ error: 'No token provided' });
+  }
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET!);
+    req.user = decoded;
+    next();
+  } catch (error) {
+    res.status(401).json({ error: 'Invalid token' });
+  }
+};
+```
+
+---
+
+## 4. Domain Deployment Strategy
+
+### 4.1 Domain-Specific Deployment
 
 ```yaml
-# infrastructure/cloudformation/templates/fargate.yml
+# infrastructure/cloudformation/templates/fargate-domains.yml
 AWSTemplateFormatVersion: '2010-09-09'
-Description: 'AWS Fargate Service Configuration'
+Description: 'Domain-specific Fargate services'
 
 Parameters:
   Environment:
@@ -683,98 +529,14 @@ Parameters:
     AllowedValues: [dev, staging, prod]
     Description: Environment name
 
-  ServiceName:
-    Type: String
-    Description: Name of the service
-
-  ContainerPort:
-    Type: Number
-    Default: 3000
-    Description: Container port
-
-  ContainerCpu:
-    Type: Number
-    Default: 256
-    AllowedValues: [256, 512, 1024, 2048, 4096]
-    Description: Container CPU units
-
-  ContainerMemory:
-    Type: Number
-    Default: 512
-    AllowedValues: [512, 1024, 2048, 4096, 8192, 16384, 30720]
-    Description: Container memory in MiB
-
-  DesiredCount:
-    Type: Number
-    Default: 2
-    MinValue: 1
-    MaxValue: 10
-    Description: Desired number of tasks
-
 Resources:
-  # ECS Cluster
-  ECSCluster:
-    Type: AWS::ECS::Cluster
-    Properties:
-      ClusterName: !Sub '${Environment}-enterprise-cluster'
-      CapacityProviders:
-        - FARGATE
-        - FARGATE_SPOT
-      DefaultCapacityProviderStrategy:
-        - CapacityProvider: FARGATE
-          Weight: 1
-      Settings:
-        - Name: containerInsights
-          Value: enabled
-      Tags:
-        - Key: Name
-          Value: !Sub '${Environment}-enterprise-cluster'
-
-  # Task Definition
-  TaskDefinition:
-    Type: AWS::ECS::TaskDefinition
-    Properties:
-      Family: !Sub '${Environment}-${ServiceName}'
-      NetworkMode: awsvpc
-      RequiresCompatibilities:
-        - FARGATE
-      Cpu: !Ref ContainerCpu
-      Memory: !Ref ContainerMemory
-      ExecutionRoleArn: !GetAtt ECSExecutionRole.Arn
-      TaskRoleArn: !GetAtt ECSTaskRole.Arn
-      ContainerDefinitions:
-        - Name: !Ref ServiceName
-          Image: !Sub '${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${ServiceName}:latest'
-          PortMappings:
-            - ContainerPort: !Ref ContainerPort
-              Protocol: tcp
-          Environment:
-            - Name: NODE_ENV
-              Value: !Ref Environment
-            - Name: AWS_REGION
-              Value: !Ref AWS::Region
-          LogConfiguration:
-            LogDriver: awslogs
-            Options:
-              awslogs-group: !Ref CloudWatchLogGroup
-              awslogs-region: !Ref AWS::Region
-              awslogs-stream-prefix: ecs
-          HealthCheck:
-            Command:
-              - CMD-SHELL
-              - curl -f http://localhost:!Ref ContainerPort/health || exit 1
-            Interval: 30
-            Timeout: 5
-            Retries: 3
-            StartPeriod: 60
-
-  # ECS Service
-  ECSService:
+  # User Service
+  UserService:
     Type: AWS::ECS::Service
     Properties:
-      ServiceName: !Sub '${Environment}-${ServiceName}'
+      ServiceName: !Sub '${Environment}-user-service'
       Cluster: !Ref ECSCluster
-      TaskDefinition: !Ref TaskDefinition
+      TaskDefinition: !Ref UserServiceTaskDefinition
       DesiredCount: !Ref DesiredCount
       LaunchType: FARGATE
       NetworkConfiguration:
@@ -786,506 +548,106 @@ Resources:
             Fn::Split:
               - ','
               - Fn::ImportValue: !Sub '${Environment}-private-subnets'
-      LoadBalancers:
-        - ContainerName: !Ref ServiceName
-          ContainerPort: !Ref ContainerPort
-          TargetGroupArn: !Ref TargetGroup
-      DeploymentConfiguration:
-        MaximumPercent: 200
-        MinimumHealthyPercent: 100
-        DeploymentCircuitBreaker:
-          Enable: true
-          Rollback: true
 
-  # Application Load Balancer
-  ApplicationLoadBalancer:
-    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+  # Product Service
+  ProductService:
+    Type: AWS::ECS::Service
     Properties:
-      Name: !Sub '${Environment}-${ServiceName}-alb'
-      Scheme: internet-facing
-      Type: application
-      IpAddressType: ipv4
-      Subnets:
-        Fn::Split:
-          - ','
-          - Fn::ImportValue: !Sub '${Environment}-public-subnets'
-      SecurityGroups:
-        - !Ref ALBSecurityGroup
-      Tags:
-        - Key: Name
-          Value: !Sub '${Environment}-${ServiceName}-alb'
+      ServiceName: !Sub '${Environment}-product-service'
+      Cluster: !Ref ECSCluster
+      TaskDefinition: !Ref ProductServiceTaskDefinition
+      DesiredCount: !Ref DesiredCount
+      LaunchType: FARGATE
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          AssignPublicIp: DISABLED
+          SecurityGroups:
+            - !Ref FargateSecurityGroup
+          Subnets:
+            Fn::Split:
+              - ','
+              - Fn::ImportValue: !Sub '${Environment}-private-subnets'
 
-  # Target Group
-  TargetGroup:
-    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+  # Order Service
+  OrderService:
+    Type: AWS::ECS::Service
     Properties:
-      Name: !Sub '${Environment}-${ServiceName}-tg'
-      Port: !Ref ContainerPort
-      Protocol: HTTP
-      TargetType: ip
-      VpcId:
-        Fn::ImportValue: !Sub '${Environment}-vpc-id'
-      HealthCheckPath: /health
-      HealthCheckIntervalSeconds: 30
-      HealthCheckTimeoutSeconds: 5
-      HealthyThresholdCount: 2
-      UnhealthyThresholdCount: 3
-      Tags:
-        - Key: Name
-          Value: !Sub '${Environment}-${ServiceName}-tg'
+      ServiceName: !Sub '${Environment}-order-service'
+      Cluster: !Ref ECSCluster
+      TaskDefinition: !Ref OrderServiceTaskDefinition
+      DesiredCount: !Ref DesiredCount
+      LaunchType: FARGATE
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          AssignPublicIp: DISABLED
+          SecurityGroups:
+            - !Ref FargateSecurityGroup
+          Subnets:
+            Fn::Split:
+              - ','
+              - Fn::ImportValue: !Sub '${Environment}-private-subnets'
+```
 
-  # Listener
-  Listener:
-    Type: AWS::ElasticLoadBalancingV2::Listener
-    Properties:
-      DefaultActions:
-        - Type: forward
-          TargetGroupArn: !Ref TargetGroup
-      LoadBalancerArn: !Ref ApplicationLoadBalancer
-      Port: 80
-      Protocol: HTTP
+### 4.2 Domain Communication in Production
 
-  # Security Groups
-  ALBSecurityGroup:
-    Type: AWS::EC2::SecurityGroup
-    Properties:
-      GroupDescription: Security group for ALB
-      VpcId:
-        Fn::ImportValue: !Sub '${Environment}-vpc-id'
-      SecurityGroupIngress:
-        - IpProtocol: tcp
-          FromPort: 80
-          ToPort: 80
-          CidrIp: 0.0.0.0/0
-        - IpProtocol: tcp
-          FromPort: 443
-          ToPort: 443
-          CidrIp: 0.0.0.0/0
+```mermaid
+graph TB
+    subgraph "Production Environment"
+        A[Load Balancer] --> B[API Gateway]
+        B --> C[User Service]
+        B --> D[Product Service]
+        B --> E[Order Service]
+        B --> F[Analytics Service]
+        B --> G[Notification Service]
+        
+        C --> H[Aurora Database]
+        D --> H
+        E --> H
+        F --> H
+        G --> H
+        
+        C --> I[Redis Cache]
+        D --> I
+        E --> I
+        F --> I
+        G --> I
+        
+        J[Event Bus] --> C
+        J --> D
+        J --> E
+        J --> F
+        J --> G
+        
+        K[Monitoring] --> C
+        K --> D
+        K --> E
+        K --> F
+        K --> G
+    end
 
-  FargateSecurityGroup:
-    Type: AWS::EC2::SecurityGroup
-    Properties:
-      GroupDescription: Security group for Fargate tasks
-      VpcId:
-        Fn::ImportValue: !Sub '${Environment}-vpc-id'
-      SecurityGroupIngress:
-        - IpProtocol: tcp
-          FromPort: !Ref ContainerPort
-          ToPort: !Ref ContainerPort
-          SourceSecurityGroupId: !Ref ALBSecurityGroup
-
-  # IAM Roles
-  ECSExecutionRole:
-    Type: AWS::IAM::Role
-    Properties:
-      AssumeRolePolicyDocument:
-        Version: '2012-10-17'
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service: ecs-tasks.amazonaws.com
-            Action: sts:AssumeRole
-      ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
-      Policies:
-        - PolicyName: ECSExecutionPolicy
-          PolicyDocument:
-            Version: '2012-10-17'
-            Statement:
-              - Effect: Allow
-                Action:
-                  - ecr:GetAuthorizationToken
-                  - ecr:BatchCheckLayerAvailability
-                  - ecr:GetDownloadUrlForLayer
-                  - ecr:BatchGetImage
-                Resource: '*'
-
-  ECSTaskRole:
-    Type: AWS::IAM::Role
-    Properties:
-      AssumeRolePolicyDocument:
-        Version: '2012-10-17'
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service: ecs-tasks.amazonaws.com
-            Action: sts:AssumeRole
-      ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/CloudWatchLogsFullAccess
-        - arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess
-
-  # CloudWatch Log Group
-  CloudWatchLogGroup:
-    Type: AWS::Logs::LogGroup
-    Properties:
-      LogGroupName: !Sub '/ecs/${Environment}-${ServiceName}'
-      RetentionInDays: 30
-
-Outputs:
-  ServiceURL:
-    Description: Service URL
-    Value: !Sub 'http://${ApplicationLoadBalancer.DNSName}'
-    Export:
-      Name: !Sub '${Environment}-${ServiceName}-url'
-
-  ECSClusterName:
-    Description: ECS Cluster Name
-    Value: !Ref ECSCluster
-    Export:
-      Name: !Sub '${Environment}-ecs-cluster'
+    style A fill:#f3e5f5
+    style B fill:#e8f5e8
+    style H fill:#fff3e0
+    style I fill:#fce4ec
+    style J fill:#e1f5fe
+    style K fill:#ffebee
 ```
 
 ---
 
-## 4. Multi-Environment Deployment
+## 5. Domain Monitoring and Observability
 
-### 4.1 Environment Configuration
-
-```yaml
-# infrastructure/cloudformation/environments/dev/parameters.json
-{
-  "Parameters": {
-    "Environment": "dev",
-    "DBInstanceClass": "db.r6g.large",
-    "DBClusterSize": "1",
-    "ContainerCpu": "256",
-    "ContainerMemory": "512",
-    "DesiredCount": "1"
-  }
-}
-
-# infrastructure/cloudformation/environments/staging/parameters.json
-{
-  "Parameters": {
-    "Environment": "staging",
-    "DBInstanceClass": "db.r6g.large",
-    "DBClusterSize": "2",
-    "ContainerCpu": "512",
-    "ContainerMemory": "1024",
-    "DesiredCount": "2"
-  }
-}
-
-# infrastructure/cloudformation/environments/prod/parameters.json
-{
-  "Parameters": {
-    "Environment": "prod",
-    "DBInstanceClass": "db.r6g.xlarge",
-    "DBClusterSize": "3",
-    "ContainerCpu": "1024",
-    "ContainerMemory": "2048",
-    "DesiredCount": "3"
-  }
-}
-```
-
-### 4.2 Deployment Scripts
-
-```bash
-#!/bin/bash
-# scripts/deploy.sh
-
-set -e
-
-ENVIRONMENT=$1
-SERVICE=$2
-ACTION=$3
-
-if [ -z "$ENVIRONMENT" ] || [ -z "$SERVICE" ] || [ -z "$ACTION" ]; then
-    echo "Usage: $0 <environment> <service> <action>"
-    echo "Environments: dev, staging, prod"
-    echo "Services: user-service, product-service, order-service"
-    echo "Actions: deploy, update, destroy"
-    exit 1
-fi
-
-# Validate environment
-if [[ ! "$ENVIRONMENT" =~ ^(dev|staging|prod)$ ]]; then
-    echo "Invalid environment: $ENVIRONMENT"
-    exit 1
-fi
-
-# Validate service
-if [[ ! "$SERVICE" =~ ^(user-service|product-service|order-service)$ ]]; then
-    echo "Invalid service: $SERVICE"
-    exit 1
-fi
-
-# Set AWS region
-export AWS_REGION=${AWS_REGION:-us-east-1}
-
-# Deploy infrastructure
-deploy_infrastructure() {
-    echo "Deploying infrastructure for $ENVIRONMENT..."
-    
-    # Deploy VPC
-    aws cloudformation deploy \
-        --template-file infrastructure/cloudformation/templates/vpc.yml \
-        --stack-name $ENVIRONMENT-enterprise-vpc \
-        --parameter-overrides Environment=$ENVIRONMENT \
-        --capabilities CAPABILITY_IAM \
-        --region $AWS_REGION
-
-    # Deploy Aurora
-    aws cloudformation deploy \
-        --template-file infrastructure/cloudformation/templates/aurora.yml \
-        --stack-name $ENVIRONMENT-enterprise-aurora \
-        --parameter-overrides \
-            Environment=$ENVIRONMENT \
-            DBPassword=$(aws secretsmanager get-secret-value --secret-id $ENVIRONMENT/db/password --query SecretString --output text) \
-        --capabilities CAPABILITY_IAM \
-        --region $AWS_REGION
-
-    # Deploy Fargate service
-    aws cloudformation deploy \
-        --template-file infrastructure/cloudformation/templates/fargate.yml \
-        --stack-name $ENVIRONMENT-enterprise-$SERVICE \
-        --parameter-overrides \
-            Environment=$ENVIRONMENT \
-            ServiceName=$SERVICE \
-        --capabilities CAPABILITY_IAM \
-        --region $AWS_REGION
-}
-
-# Build and push Docker image
-build_and_push_image() {
-    echo "Building and pushing Docker image for $SERVICE..."
-    
-    # Get ECR repository URI
-    REPO_URI=$(aws ecr describe-repositories --repository-names $SERVICE --query 'repositories[0].repositoryUri' --output text 2>/dev/null || \
-                aws ecr create-repository --repository-name $SERVICE --query 'repository.repositoryUri' --output text)
-    
-    # Login to ECR
-    aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $REPO_URI
-    
-    # Build image
-    docker build -t $SERVICE ./backend/services/$SERVICE
-    
-    # Tag image
-    docker tag $SERVICE:latest $REPO_URI:latest
-    docker tag $SERVICE:latest $REPO_URI:$ENVIRONMENT-$(date +%Y%m%d-%H%M%S)
-    
-    # Push image
-    docker push $REPO_URI:latest
-    docker push $REPO_URI:$ENVIRONMENT-$(date +%Y%m%d-%H%M%S)
-}
-
-# Update ECS service
-update_service() {
-    echo "Updating ECS service for $SERVICE..."
-    
-    # Force new deployment
-    aws ecs update-service \
-        --cluster $ENVIRONMENT-enterprise-cluster \
-        --service $ENVIRONMENT-$SERVICE \
-        --force-new-deployment \
-        --region $AWS_REGION
-}
-
-# Main deployment logic
-case $ACTION in
-    "deploy")
-        deploy_infrastructure
-        build_and_push_image
-        update_service
-        ;;
-    "update")
-        build_and_push_image
-        update_service
-        ;;
-    "destroy")
-        echo "Destroying $ENVIRONMENT-$SERVICE..."
-        aws cloudformation delete-stack \
-            --stack-name $ENVIRONMENT-enterprise-$SERVICE \
-            --region $AWS_REGION
-        ;;
-    *)
-        echo "Invalid action: $ACTION"
-        exit 1
-        ;;
-esac
-
-echo "Deployment completed successfully!"
-```
-
----
-
-## 5. Cost Optimization Strategies
-
-### 5.1 Fargate Spot Instances
+### 5.1 Domain-Specific Monitoring
 
 ```yaml
-# infrastructure/cloudformation/templates/fargate-spot.yml
+# infrastructure/cloudformation/templates/monitoring-domains.yml
 Resources:
-  # Spot Task Definition
-  SpotTaskDefinition:
-    Type: AWS::ECS::TaskDefinition
-    Properties:
-      Family: !Sub '${Environment}-${ServiceName}-spot'
-      NetworkMode: awsvpc
-      RequiresCompatibilities:
-        - FARGATE
-      Cpu: !Ref ContainerCpu
-      Memory: !Ref ContainerMemory
-      ExecutionRoleArn: !GetAtt ECSExecutionRole.Arn
-      TaskRoleArn: !GetAtt ECSTaskRole.Arn
-      CapacityProviderStrategy:
-        - CapacityProvider: FARGATE_SPOT
-          Weight: 1
-        - CapacityProvider: FARGATE
-          Weight: 0
-      ContainerDefinitions:
-        - Name: !Ref ServiceName
-          Image: !Sub '${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${ServiceName}:latest'
-          PortMappings:
-            - ContainerPort: !Ref ContainerPort
-              Protocol: tcp
-          Environment:
-            - Name: NODE_ENV
-              Value: !Ref Environment
-          LogConfiguration:
-            LogDriver: awslogs
-            Options:
-              awslogs-group: !Ref CloudWatchLogGroup
-              awslogs-region: !Ref AWS::Region
-              awslogs-stream-prefix: ecs
-```
-
-### 5.2 Aurora Serverless v2
-
-```yaml
-# infrastructure/cloudformation/templates/aurora-serverless.yml
-Resources:
-  AuroraServerlessCluster:
-    Type: AWS::RDS::DBCluster
-    Properties:
-      DBClusterIdentifier: !Sub '${Environment}-aurora-serverless'
-      Engine: aurora-postgresql
-      EngineVersion: '15.4'
-      EngineMode: provisioned
-      ServerlessV2ScalingConfiguration:
-        MinCapacity: 0.5
-        MaxCapacity: 16
-      DatabaseName: !Ref DBName
-      MasterUsername: !Ref DBUsername
-      MasterUserPassword: !Ref DBPassword
-      DBSubnetGroupName: !Ref AuroraSubnetGroup
-      VpcSecurityGroupIds:
-        - !Ref AuroraSecurityGroup
-      BackupRetentionPeriod: 7
-      StorageEncrypted: true
-      DeletionProtection: !If [IsProd, true, false]
-```
-
----
-
-## 6. Security Best Practices
-
-### 6.1 IAM Policies
-
-```yaml
-# infrastructure/cloudformation/templates/security.yml
-Resources:
-  # ECS Task Role with minimal permissions
-  ECSTaskRole:
-    Type: AWS::IAM::Role
-    Properties:
-      AssumeRolePolicyDocument:
-        Version: '2012-10-17'
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service: ecs-tasks.amazonaws.com
-            Action: sts:AssumeRole
-      Policies:
-        - PolicyName: ECSTaskPolicy
-          PolicyDocument:
-            Version: '2012-10-17'
-            Statement:
-              - Effect: Allow
-                Action:
-                  - logs:CreateLogGroup
-                  - logs:CreateLogStream
-                  - logs:PutLogEvents
-                Resource: !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/ecs/${Environment}-*'
-              - Effect: Allow
-                Action:
-                  - s3:GetObject
-                  - s3:PutObject
-                Resource: !Sub 'arn:aws:s3:::${Environment}-enterprise-bucket/*'
-```
-
-### 6.2 Security Groups
-
-```yaml
-# infrastructure/cloudformation/templates/security-groups.yml
-Resources:
-  # Restrictive security group for Fargate
-  FargateSecurityGroup:
-    Type: AWS::EC2::SecurityGroup
-    Properties:
-      GroupDescription: Security group for Fargate tasks
-      VpcId:
-        Fn::ImportValue: !Sub '${Environment}-vpc-id'
-      SecurityGroupIngress:
-        - IpProtocol: tcp
-          FromPort: !Ref ContainerPort
-          ToPort: !Ref ContainerPort
-          SourceSecurityGroupId: !Ref ALBSecurityGroup
-      SecurityGroupEgress:
-        - IpProtocol: tcp
-          FromPort: 443
-          ToPort: 443
-          CidrIp: 0.0.0.0/0
-        - IpProtocol: tcp
-          FromPort: 5432
-          ToPort: 5432
-          SourceSecurityGroupId: !Ref AuroraSecurityGroup
-```
-
----
-
-## 7. Monitoring and Logging
-
-### 7.1 CloudWatch Configuration
-
-```yaml
-# infrastructure/cloudformation/templates/monitoring.yml
-Resources:
-  # CloudWatch Dashboard
-  CloudWatchDashboard:
-    Type: AWS::CloudWatch::Dashboard
-    Properties:
-      DashboardName: !Sub '${Environment}-enterprise-dashboard'
-      DashboardBody: !Sub |
-        {
-          "widgets": [
-            {
-              "type": "metric",
-              "x": 0,
-              "y": 0,
-              "width": 12,
-              "height": 6,
-              "properties": {
-                "metrics": [
-                  ["AWS/ECS", "CPUUtilization", "ServiceName", "${Environment}-user-service"],
-                  ["AWS/ECS", "MemoryUtilization", "ServiceName", "${Environment}-user-service"]
-                ],
-                "view": "timeSeries",
-                "stacked": false,
-                "region": "${AWS::Region}",
-                "title": "ECS Service Metrics"
-              }
-            }
-          ]
-        }
-
-  # CloudWatch Alarms
-  HighCPUAlarm:
+  # User Service Monitoring
+  UserServiceCPUAlarm:
     Type: AWS::CloudWatch::Alarm
     Properties:
-      AlarmName: !Sub '${Environment}-high-cpu-alarm'
-      AlarmDescription: High CPU utilization
+      AlarmName: !Sub '${Environment}-user-service-cpu-alarm'
+      AlarmDescription: High CPU utilization for User Service
       MetricName: CPUUtilization
       Namespace: AWS/ECS
       Statistic: Average
@@ -1298,11 +660,37 @@ Resources:
           Value: !Sub '${Environment}-user-service'
         - Name: ClusterName
           Value: !Sub '${Environment}-enterprise-cluster'
+
+  # Product Service Monitoring
+  ProductServiceCPUAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub '${Environment}-product-service-cpu-alarm'
+      AlarmDescription: High CPU utilization for Product Service
+      MetricName: CPUUtilization
+      Namespace: AWS/ECS
+      Statistic: Average
+      Period: 300
+      EvaluationPeriods: 2
+      Threshold: 80
+      ComparisonOperator: GreaterThanThreshold
+      Dimensions:
+        - Name: ServiceName
+          Value: !Sub '${Environment}-product-service'
+        - Name: ClusterName
+          Value: !Sub '${Environment}-enterprise-cluster'
 ```
 
 ---
 
-## 8. Implementation Checklist
+## 6. Implementation Checklist
+
+### Domain Architecture
+- [ ] Define clear domain boundaries
+- [ ] Implement domain-specific services
+- [ ] Set up shared domain services
+- [ ] Configure domain communication patterns
+- [ ] Establish domain monitoring
 
 ### Infrastructure Setup
 - [ ] Set up VPC with public and private subnets
@@ -1343,17 +731,18 @@ Resources:
 
 ## Conclusion
 
-This infrastructure and backend guidelines provide a comprehensive foundation for building scalable, secure, and cost-effective enterprise applications using AWS services. The container-first approach with Fargate ensures portability across different deployment environments, while the CloudFormation templates provide infrastructure as code for consistent deployments.
+This infrastructure and backend guidelines provide a comprehensive foundation for building scalable, secure, and cost-effective enterprise applications using AWS services. The domain-driven approach ensures clear separation of concerns, while the container-first approach with Fargate ensures portability across different deployment environments.
 
 ### Key Takeaways
 
-1. **Containerization**: Use Docker for consistent deployments across environments
-2. **AWS Fargate**: Serverless container orchestration for cost optimization
-3. **Aurora PostgreSQL**: Managed database service for scalability and reliability
-4. **CloudFormation**: Infrastructure as code for consistent deployments
-5. **Security**: Implement least privilege and encryption at all layers
-6. **Cost Optimization**: Use Spot instances and Serverless v2 for cost savings
-7. **Monitoring**: Comprehensive logging and monitoring for operational excellence
+1. **Domain-Driven Design**: Organize code around business capabilities
+2. **Containerization**: Use Docker for consistent deployments across environments
+3. **AWS Fargate**: Serverless container orchestration for cost optimization
+4. **Aurora PostgreSQL**: Managed database service for scalability and reliability
+5. **CloudFormation**: Infrastructure as code for consistent deployments
+6. **Security**: Implement least privilege and encryption at all layers
+7. **Cost Optimization**: Use Spot instances and Serverless v2 for cost savings
+8. **Monitoring**: Comprehensive logging and monitoring for operational excellence
 
 ### Success Metrics
 
