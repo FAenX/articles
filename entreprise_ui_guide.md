@@ -256,20 +256,24 @@ class ServiceManager {
 
 ```mermaid
 graph TD
-    A[Core Orchestrator] --> B[Auth Orchestrator]
-    A --> C[Navigation Orchestrator]
-    A --> D[Data Orchestrator]
-    A --> E[Error Orchestrator]
+    J[Event Bus]
 
-    B --> F[Auth Events]
-    C --> G[Navigation Events]
-    D --> H[Data Events]
-    E --> I[Error Events]
+    %% Orchestrators subscribe to and emit events via the Event Bus
+    J --> B[Auth Orchestrator]
+    J --> C[Navigation Orchestrator]
+    J --> D[Data Orchestrator]
+    J --> E[Error Orchestrator]
 
-    F --> J[Event Bus]
-    G --> J
-    H --> J
-    I --> J
+    B --> J
+    C --> J
+    D --> J
+    E --> J
+
+    %% Event categories
+    J --> F[Auth Events]
+    J --> G[Navigation Events]
+    J --> H[Data Events]
+    J --> I[Error Events]
 
     subgraph Orchestrator Responsibilities
         K[Coordinate Workflows]
@@ -278,12 +282,6 @@ graph TD
         N[Error Recovery]
     end
 
-    A --> K
-    A --> L
-    A --> M
-    A --> N
-
-    style A fill:#e1f5fe
     style J fill:#f3e5f5
     style K fill:#e8f5e8
     style L fill:#fff3e0
@@ -291,21 +289,35 @@ graph TD
     style N fill:#ffebee
 ```
 
-**Universal Principle**: Use specialized orchestrators to coordinate complex workflows while maintaining separation of concerns.
+**Universal Principle**: Use independent, event-driven orchestrators for complex workflows. Orchestrators communicate via the event bus; there is no central/core orchestrator.
 
 **Implementation Pattern**:
 
 ```typescript
-// ✅ CORRECT: Specialized orchestrators
-class CoreOrchestrator {
-  constructor() {
-    this.authOrchestrator = new AuthOrchestrator();
-    this.navOrchestrator = new NavigationOrchestrator();
-    this.dataOrchestrator = new DataOrchestrator();
+// ✅ CORRECT: Independent, event-driven orchestrators
+class AuthOrchestrator {
+  constructor(eventBus, authService) {
+    this.eventBus = eventBus;
+    this.authService = authService;
+    this.eventBus.on("AUTH_LOGIN_REQUEST", (payload) => this.handleLogin(payload));
   }
 
-  async handleUserLogin(credentials) {
-    return this.authOrchestrator.handleLogin(credentials);
+  async handleLogin({ credentials }) {
+    const result = await this.authService.authenticate(credentials);
+    if (result.success) {
+      this.eventBus.emit("AUTH_SUCCESS", { user: result.user });
+      this.eventBus.emit("NAVIGATION_REQUEST", { to: "/dashboard" });
+    } else {
+      this.eventBus.emit("AUTHENTICATION_FAILED", { error: result.error });
+    }
+  }
+}
+
+class NavigationOrchestrator {
+  constructor(eventBus, router) {
+    this.eventBus = eventBus;
+    this.router = router;
+    this.eventBus.on("NAVIGATION_REQUEST", ({ to }) => this.router.navigate(to));
   }
 }
 ```
@@ -1491,7 +1503,7 @@ stateDiagram
 2. **Implement event-driven architecture for cross-module communication**
 3. **Maintain single source of truth for all data**
 4. **Initialize services in proper order before rendering**
-5. **Use specialized orchestrators for complex workflows**
+5. **Use independent, event-driven orchestrators for complex workflows** (e.g., navigation events handled only by `NavigationOrchestrator`)
 6. **Implement data loader patterns for data management**
 7. **Design with progressive disclosure**
 8. **Provide hierarchical loading states**
@@ -1514,7 +1526,7 @@ stateDiagram
 2. **Use direct service calls instead of events**
 3. **Maintain multiple sources of truth**
 4. **Initialize services during render**
-5. **Create monolithic orchestrators**
+5. **Create monolithic or central/core orchestrators**
 6. **Make direct API calls in components**
 7. **Overwhelm users with information**
 8. **Use single loading state for everything**
