@@ -113,7 +113,7 @@ graph LR
     F --> G[State Updates]
     G --> A
 
-    subgraph "Event Types"
+    subgraph Event Types
         H[User Events]
         I[System Events]
         J[Data Events]
@@ -158,7 +158,7 @@ graph TD
     B --> D[Services]
     B --> E[Cache Layer]
 
-    subgraph "Data Flow"
+    subgraph Data Flow
         F[Read Operations]
         G[Write Operations]
         H[Cache Invalidation]
@@ -208,7 +208,7 @@ graph TD
     D --> E[UI Services]
     E --> F[Ready State]
 
-    subgraph "Initialization Phases"
+    subgraph Initialization Phases
         G[Phase 1: Core Infrastructure]
         H[Phase 2: Data Management]
         I[Phase 3: Business Logic]
@@ -271,7 +271,7 @@ graph TD
     H --> J
     I --> J
 
-    subgraph "Orchestrator Responsibilities"
+    subgraph Orchestrator Responsibilities
         K[Coordinate Workflows]
         L[Handle Cross-Cutting Concerns]
         M[Manage State Transitions]
@@ -328,7 +328,7 @@ graph TB
     B --> H[Error State]
     B --> I[Success State]
 
-    subgraph "Data Flow States"
+    subgraph Data Flow States
         J[Initial Load]
         K[Data Refresh]
         L[Error Recovery]
@@ -393,7 +393,7 @@ graph LR
     F[Polling] --> G[Data Loader]
     G --> E
 
-    subgraph "Real-time Flow"
+    subgraph Real-time Flow
         H[Connection Management]
         I[Message Processing]
         J[State Synchronization]
@@ -454,12 +454,12 @@ graph TD
     B --> C[Advanced Options]
     C --> D[Expert Settings]
 
-    subgraph "User Journey"
+    subgraph User Journey
         E[User Lands on Page]
         F[Sees Basic Info]
-        G[Clicks "Show More"]
+        G[Clicks 'Show More']
         H[Views Details]
-        I[Clicks "Advanced"]
+        I[Clicks 'Advanced']
         J[Accesses Expert Features]
     end
 
@@ -512,7 +512,7 @@ graph TD
     C --> D[Component Loading]
     D --> E[Action Loading]
 
-    subgraph "Loading States"
+    subgraph Loading States
         F[Full Page Spinner]
         G[Skeleton Loaders]
         H[Progress Indicators]
@@ -584,7 +584,7 @@ graph TD
     E --> I[Offline Mode]
     F --> J[Error Page]
 
-    subgraph "Error Recovery"
+    subgraph Error Recovery
         K[Automatic Retry]
         L[User Retry]
         M[Graceful Degradation]
@@ -670,7 +670,7 @@ graph TD
 
     D --> G[Compute Fresh]
 
-    subgraph "Memoization Decision"
+    subgraph Memoization Decision
         H[Frequent Re-renders]
         I[Complex Calculations]
         J[API Calls]
@@ -737,7 +737,7 @@ graph TD
 
     D --> H[Render Component]
 
-    subgraph "Lazy Loading Types"
+    subgraph Lazy Loading Types
         I[Route-based Lazy Loading]
         J[Component Lazy Loading]
         K[Data Lazy Loading]
@@ -814,7 +814,7 @@ graph TD
     A --> F[Service Tests]
     A --> G[Utility Tests]
 
-    subgraph "Testing Pyramid"
+    subgraph Testing Pyramid
         H[Fast & Cheap]
         I[Medium Speed & Cost]
         J[Slow & Expensive]
@@ -903,7 +903,7 @@ graph TD
     E --> G
     F --> G
 
-    subgraph "Mocking Benefits"
+    subgraph Mocking Benefits
         H[Isolated Tests]
         I[Predictable Results]
         J[Fast Execution]
@@ -977,7 +977,7 @@ graph TD
 
     E --> H[Show Error]
 
-    subgraph "Security Measures"
+    subgraph Security Measures
         I[Input Sanitization]
         J[Token Encryption]
         K[Session Management]
@@ -1058,7 +1058,7 @@ graph TD
     E --> G[Use Input]
     F --> H[Clear Input]
 
-    subgraph "Validation Layers"
+    subgraph Validation Layers
         I[Client-side Validation]
         J[Server-side Validation]
         K[Database Constraints]
@@ -1168,7 +1168,7 @@ graph TD
     D --> E[Send to Service]
     E --> F[Alert if Critical]
 
-    subgraph "Error Context"
+    subgraph Error Context
         G[User Information]
         H[Environment Details]
         I[Stack Trace]
@@ -1180,7 +1180,7 @@ graph TD
     B --> I
     B --> J
 
-    subgraph "Alerting Levels"
+    subgraph Alerting Levels
         K[Info]
         L[Warning]
         M[Error]
@@ -1278,11 +1278,11 @@ graph TD
     E --> J
     E --> K
 
-    subgraph "Performance Thresholds"
-        L[Excellent: < 1s]
+    subgraph Performance Thresholds
+        L[Excellent: &lt; 1s]
         M[Good: 1-3s]
         N[Poor: 3-5s]
-        O[Critical: > 5s]
+        O[Critical: &gt; 5s]
     end
 
     G --> L
@@ -1381,31 +1381,31 @@ function UserList() {
 
 ```mermaid
 graph TB
-    subgraph "Frontend Layer"
+    subgraph Frontend Layer
         A[UI Components]
         B[State Management]
         C[Event System]
     end
 
-    subgraph "Service Layer"
+    subgraph Service Layer
         D[Core Services]
         E[Business Services]
         F[Data Services]
     end
 
-    subgraph "Data Layer"
+    subgraph Data Layer
         G[Data Loaders]
         H[Cache Layer]
         I[API Gateway]
     end
 
-    subgraph "External Layer"
+    subgraph External Layer
         J[REST APIs]
         K[WebSocket APIs]
         L[Third-party Services]
     end
 
-    subgraph "Infrastructure Layer"
+    subgraph Infrastructure Layer
         M[Error Tracking]
         N[Performance Monitoring]
         O[Security Services]
@@ -1468,7 +1468,7 @@ sequenceDiagram
 ## Component Lifecycle
 
 ```mermaid
-stateDiagram-v2
+stateDiagram
     [*] --> Initializing
     Initializing --> Loading: Services Ready
     Loading --> Ready: Data Loaded
