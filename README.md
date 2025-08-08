@@ -8,7 +8,11 @@ This repository contains articles and guides.
 ## Data Loading Guidelines
 - Data Loading Patterns: Comprehensive Guidelines for Enterprise Applications → [data_loading_guidelines.md](./data_loading_guidelines.md)
 
+## Implementation Guidelines
+- Implementation Guidelines: Enterprise Development Standards → [implementation_guidelines.md](./implementation_guidelines.md)
+
 ## Notes
 - Mermaid diagrams are formatted for broad compatibility across common renderers.
 - Orchestrators are independent and communicate via an event bus; there is no core orchestrator.
 - Data loading patterns cover traditional request/response, real-time WebSocket, and streaming data flows.
+- Implementation guidelines cover domain-driven folder structure, React patterns, Jest hoisting issues, and Vite setup.
